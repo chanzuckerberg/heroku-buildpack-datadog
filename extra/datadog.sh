@@ -63,6 +63,9 @@ sed -i "s/^#   - role:database$/#   - role:database\n$TAGS/" $DATADOG_CONF
 # Turn off console logging
 sed -i -e"s|^.*log_to_console:.*$|log_to_console: no|" $DATADOG_CONF
 
+# Set log level for the agent. Can we overridden by DD_LOG_LEVEL Environment variable.
+sed -i -e"s|^# log_level:.*$|log_level: critical|" $DATADOG_CONF
+
 # Add log file location for agent.
 sed -i -e"s|^# log_file: /var/log/datadog/agent.log|log_file: $DD_LOG_FILE|" $DATADOG_CONF
 
