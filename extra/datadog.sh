@@ -60,6 +60,9 @@ fi
 # Inject tags after example tags.
 sed -i "s/^#   - role:database$/#   - role:database\n$TAGS/" $DATADOG_CONF
 
+# Turn off console logging
+sed -i -e"s|^.*log_to_console:.*$|log_to_console: no|" $DATADOG_CONF
+
 # Add log file location for agent.
 sed -i -e"s|^# log_file: /var/log/datadog/agent.log|log_file: $DD_LOG_FILE|" $DATADOG_CONF
 
