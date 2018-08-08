@@ -81,7 +81,10 @@ if [ -z "$DD_API_KEY" ]; then
 fi
 
 if [ -z "$DD_HOSTNAME" ]; then
-  if [ "$DD_DYNO_HOST" == "true" ]; then
+  if [ "$DD_DYNO_HOST" == "false" ]; then
+    # Set the hostname to the dyno host
+    export DD_HOSTNAME=$( echo $DYNOHOST | sed -e 's/[^a-zA-Z0-9-]/-/g' -e 's/^-//g' )
+  else
     # Set the hostname to dyno name and ensure rfc1123 compliance.
     HAN=$( echo $HEROKU_APP_NAME | sed -e 's/[^a-zA-Z0-9-]/-/g' -e 's/^-//g' )
     if [ "$HAN" != "$HEROKU_APP_NAME" ]; then
@@ -90,9 +93,6 @@ if [ -z "$DD_HOSTNAME" ]; then
 
     D=$( echo $DYNO | sed -e 's/[^a-zA-Z0-9.-]/-/g' -e 's/^-//g' )
     export DD_HOSTNAME="$HAN.$D"
-  else
-    # Set the hostname to the dyno host
-    export DD_HOSTNAME=$( echo $DYNOHOST | sed -e 's/[^a-zA-Z0-9-]/-/g' -e 's/^-//g' )
   fi
 else
   # Generate a warning about DD_HOSTNAME deprecation.
