@@ -29,12 +29,16 @@ sed -i -e"s|^.*additional_checksd:.*$|additional_checksd: $DD_DIR/checks.d|" $DA
 # Include application's datadog configs
 APP_DATADOG_CONF_DIR="/app/datadog/conf.d"
 
-for file in "$APP_DATADOG_CONF_DIR"/*.yaml; do
-  filename=$(basename -- "$file")
-  filename="${filename%.*}"
-  mkdir -p "$DD_CONF_DIR/conf.d/${filename}.d"
-  cp $file "$DD_CONF_DIR/conf.d/${filename}.d/conf.yaml"
-done
+if [ -d "$APP_DATADOG_CONF_DIR" ]; then
+  for file in "$APP_DATADOG_CONF_DIR"/*.yaml; do
+    filename=$(basename -- "$file")
+    filename="${filename%.*}"
+    mkdir -p "$DD_CONF_DIR/conf.d/${filename}.d"
+    cp $file "$DD_CONF_DIR/conf.d/${filename}.d/conf.yaml"
+  done
+else
+  echo "Application specific datadog configs not defined in $APP_DATADOG_CONF_DIR. Moving on."
+fi
 
 # Add tags to the config file
 DYNOHOST="$( hostname )"
@@ -107,11 +111,11 @@ else
   echo "Starting Datadog Agent on $DD_HOSTNAME"
   bash -c "PYTHONPATH=\"$DD_PYTHONPATH\" $DD_BIN_DIR/agent run -c $DATADOG_CONF 2>&1 &"
 
-  # The Trace Agent will run by default.
-  if [ "$DD_APM_ENABLED" == "false" ]; then
-    echo "The Datadog Trace Agent has been disabled. Set DD_APM_ENABLED to true or unset it."
-  else
+  # The Trace Agent will run only if APM is enabled.
+  if [ "$DD_APM_ENABLED" == "true" ]; then
     echo "Starting Datadog Trace Agent on $DD_HOSTNAME"
     bash -c "$DD_DIR/embedded/bin/trace-agent -config $DATADOG_CONF 2>&1 &"
+  else
+    echo "The Datadog Trace Agent (for APM) has been disabled. Set DD_APM_ENABLED to true or unset it."
   fi
 fi
