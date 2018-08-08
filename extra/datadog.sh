@@ -116,6 +116,6 @@ else
     echo "Starting Datadog Trace Agent on $DD_HOSTNAME"
     bash -c "$DD_DIR/embedded/bin/trace-agent -config $DATADOG_CONF 2>&1 &"
   else
-    echo "The Datadog Trace Agent (for APM) has been disabled. Set DD_APM_ENABLED to true or unset it."
+    echo "The Datadog Trace Agent (for APM) has been disabled. Set DD_APM_ENABLED to true if you want APM enabled."
   fi
 fi
