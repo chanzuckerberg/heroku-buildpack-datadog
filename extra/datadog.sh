@@ -41,20 +41,9 @@ else
 fi
 
 # Add tags to the config file
-DYNOHOST="$( hostname )"
-DYNOTYPE=${DYNO%%.*}
-TAGS="tags:\n  - dyno:$DYNO\n  - dynotype:$DYNOTYPE"
-
+TAGS=""
 if [ -n "$HEROKU_APP_NAME" ]; then
-  TAGS="$TAGS\n  - appname:$HEROKU_APP_NAME"
-fi
-
-# Convert comma delimited tags from env vars to yaml
-if [ -n "$DD_TAGS" ]; then
-  DD_TAGS=$(sed "s/,[ ]\?/\\\n  - /g" <<< $DD_TAGS)
-  TAGS="$TAGS\n  - $DD_TAGS"
-  # User set tags are now in YAML, clear the env var.
-  export DD_TAGS=""
+  TAGS="tags:\n  - appname:$HEROKU_APP_NAME"
 fi
 
 # Inject tags after example tags.
@@ -95,8 +84,8 @@ if [ -z "$DD_HOSTNAME" ]; then
     export DD_HOSTNAME="$HAN.$D"
   fi
 else
-  # Generate a warning about DD_HOSTNAME deprecation.
-  echo "WARNING: DD_HOSTNAME is deprecated. Setting this environment variable may result in metrics errors. To remove it, run: heroku config:unset DD_HOSTNAME"
+  # DD_HOSTNAME will be used as a hostname for all hosts. I.e. you don't get any host level metrics.
+  echo "Note: DD_HOSTNAME environment variable is set. All metrics will use the same hostname, which is fine for application metrics."
 fi
 
 
